@@ -1,7 +1,7 @@
-name: Demo Action
+name: Create Release
 on: [push]
 jobs:
-    demo:
+    create_release:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -9,8 +9,8 @@ jobs:
               
             - name: Create a zip file containing all the scripts
               run: |
-                apt install zip -y
-                zip -r scripts.zip .
+                sudo apt install zip -y
+                zip -r scripts.zip *.js
 
             - name: Create release
               env:
