@@ -51,7 +51,7 @@ function convertAndParseToEuro(inputString) {
     return euroAmount
 }
 
-(function() {
+(function () {
     'use strict';
 
     setTimeout(() => {
@@ -65,7 +65,7 @@ function convertAndParseToEuro(inputString) {
         })
 
 
-        const sortedItem = storePriceItems.sort((a,b) => {
+        const sortedItem = storePriceItems.sort((a, b) => {
             return a.price - b.price
         })
 
