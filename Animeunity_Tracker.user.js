@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        Track anime watched on animeunity
+// @name        Track anime watched
 // @namespace   Violentmonkey Scripts
 // @match       https://www.animeunity.to/*
 // @grant       none
@@ -31,7 +31,7 @@ setTimeout(() => {
   const currentUrl = window.location.href;
   let savedAnimes = GM_getValue("animes", {})
 
-  if (currentUrl == "https://www.animeunity.to/") {
+  if (currentUrl == "https://www.animeunity.to/" || currentUrl.includes("?page=")) {
 
     const animes = Array.from(document.querySelectorAll(".item"))
     console.log(savedAnimes)
