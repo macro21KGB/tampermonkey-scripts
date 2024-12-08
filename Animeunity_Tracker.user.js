@@ -27,14 +27,50 @@ function getLastPartOfUrl(url) {
   return parts[parts.length - 1];
 }
 
+function extractAnimeNameAndEpisode() {
+  const episode = document.querySelector("#video-top > span").innerText
+  const title = document.querySelector("#anime > div.header > div > div.general > h1").innerText
+
+  return {
+    title,
+    episode
+  }
+}
+
+function lastAnimeWatchedComponent(name, episode, url) {
+  const newLastAnimeWatchedComponent = document.createElement("div")
+  const parentContainer = document.querySelector("#ultimi-episodi > div.home-wrapper-header")
+
+  appendStyles(newLastAnimeWatchedComponent, {
+    width: "100%",
+    backgroundColor: "green",
+    borderRadius: "0.5rem",
+    padding: "0.5rem",
+    marginTop: "0.2rem",
+  })
+
+  newLastAnimeWatchedComponent.innerHTML = `
+    Hai visto l'ultima volta
+    <p>${name}(${episode})</p>
+    <a style="background:white;color:black;padding:0.2rem;border-radius:0.4rem" href="${url}">Clicca qui per ritornare</a>
+  `
+  parentContainer.appendChild(newLastAnimeWatchedComponent)
+}
+
 setTimeout(() => {
   const currentUrl = window.location.href;
   let savedAnimes = GM_getValue("animes", {})
+  let lastWatchedAnime = GM_getValue("last_anime", {})
 
   if (currentUrl == "https://www.animeunity.to/" || currentUrl.includes("?page=")) {
 
     const animes = Array.from(document.querySelectorAll(".item"))
-    console.log(savedAnimes)
+
+    // render last anime component
+    const lastAnimeInfo = GM_getValue("last_anime", {})
+
+    if (lastAnimeInfo.title)
+      lastAnimeWatchedComponent(lastAnimeInfo.title, lastAnimeInfo.episode, lastAnimeInfo.url)
 
     animes.forEach(el => {
       const id = getLastPartOfUrl(el.children[0].href)
@@ -63,8 +99,10 @@ setTimeout(() => {
   }
   if (currentUrl.includes("/anime/")) {
     const id = getLastPartOfUrl(currentUrl)
+
     addToObject(savedAnimes, id, true)
     GM_setValue("animes", savedAnimes)
+    GM_setValue("last_anime", {...extractAnimeNameAndEpisode(), url: currentUrl })
     console.log(savedAnimes)
   }
 
