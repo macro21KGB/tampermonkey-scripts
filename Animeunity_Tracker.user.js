@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        Track anime watched
+// @name        Animeunity Utils
 // @namespace   Violentmonkey Scripts
 // @match       https://www.animeunity.to/*
 // @grant       none
@@ -43,7 +43,7 @@ function lastAnimeWatchedComponent(name, episode, url) {
 
   appendStyles(newLastAnimeWatchedComponent, {
     width: "100%",
-    backgroundColor: "green",
+    background: "radial-gradient(circle at 10% 20%, rgb(14, 174, 87) 0%, rgb(12, 116, 117) 90%)",
     borderRadius: "0.5rem",
     padding: "0.5rem",
     marginTop: "0.2rem",
@@ -57,10 +57,11 @@ function lastAnimeWatchedComponent(name, episode, url) {
   parentContainer.appendChild(newLastAnimeWatchedComponent)
 }
 
-setTimeout(() => {
-  const currentUrl = window.location.href;
-  let savedAnimes = GM_getValue("animes", {})
-  let lastWatchedAnime = GM_getValue("last_anime", {})
+let currentUrl = window.location.href;
+let savedAnimes = GM_getValue("animes", {})
+let lastWatchedAnime = GM_getValue("last_anime", {})
+
+function renderWatchedSectionAndAnimeItem() {
 
   if (currentUrl == "https://www.animeunity.to/" || currentUrl.includes("?page=")) {
 
@@ -97,13 +98,27 @@ setTimeout(() => {
       }
     })
   }
-  if (currentUrl.includes("/anime/")) {
+}
+
+function saveAnimeAndLastEpisodeWatched() {
+    currentUrl = window.location.href;
     const id = getLastPartOfUrl(currentUrl)
 
     addToObject(savedAnimes, id, true)
     GM_setValue("animes", savedAnimes)
     GM_setValue("last_anime", {...extractAnimeNameAndEpisode(), url: currentUrl })
-    console.log(savedAnimes)
+}
+
+setTimeout(() => {
+
+  renderWatchedSectionAndAnimeItem();
+  if (currentUrl.includes("/anime/")) {
+
+    navigation.addEventListener("navigate", e => {
+      saveAnimeAndLastEpisodeWatched()
+    });
+
+    saveAnimeAndLastEpisodeWatched()
   }
 
 }, 500)
