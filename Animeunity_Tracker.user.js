@@ -6,9 +6,10 @@
 // @require https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @version     1.0
 // @author      Mario De Luca
-// @grant GM_getValue
-// @grant GM_addElement
+// @grant  GM_getValue
+// @grant  GM_addElement
 // @grant  GM_setValue
+// @grant  GM_xmlhttpRequest
 // @description 22/10/2024, 11:09:07
 // ==/UserScript==
 
@@ -55,6 +56,26 @@ function lastAnimeWatchedComponent(name, episode, url) {
     <a style="background:white;color:black;padding:0.2rem;border-radius:0.4rem" href="${url}">Clicca qui per ritornare</a>
   `
   parentContainer.appendChild(newLastAnimeWatchedComponent)
+}
+
+function malScoreComponent(name, parent) {
+  const malScoreText = document.createElement("a")
+
+  const result = GM_xmlhttpRequest({
+    url: `https://myanimelist.net/search/prefix.json?type=all&keyword=${name}&v=1`,
+    responseType: "json",
+    onload: (obj) => {
+      const firstAnimeScore = obj.response.categories[0].items[0].payload.score
+      const firstAnimeUrl = obj.response.categories[0].items[0].url
+      malScoreText.innerText = " (" + firstAnimeScore + ")"
+      malScoreText.href = firstAnimeUrl
+      parent.appendChild(malScoreText)
+
+    }
+  })
+
+
+
 }
 
 let currentUrl = window.location.href;
@@ -114,9 +135,20 @@ setTimeout(() => {
   renderWatchedSectionAndAnimeItem();
   if (currentUrl.includes("/anime/")) {
 
-    navigation.addEventListener("navigate", e => {
-      saveAnimeAndLastEpisodeWatched()
-    });
+    const malScoreParent = document.querySelector("#anime > div.content.container > div.sidebar > div.info-wrapper.pt-3.anime-info-wrapper > div:nth-child(8)")
+    malScoreComponent(extractAnimeNameAndEpisode().title, malScoreParent)
+
+    try {
+      // Use the native navigate event if supported
+      navigation.addEventListener('navigate', e => {
+        saveAnimeAndLastEpisodeWatched();
+      });
+    } catch (e) {
+      // Polyfill for browsers that do not support the navigate event
+      setInterval(() => {
+        saveAnimeAndLastEpisodeWatched()
+      }, 20000)
+    }
 
     saveAnimeAndLastEpisodeWatched()
   }
