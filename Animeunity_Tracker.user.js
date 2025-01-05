@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name        Animeunity Utils
 // @namespace   Violentmonkey Scripts
-// @match       https://www.animeunity.to/*
+// @match       https://www.animeunity.so/*
 // @grant       none
 // @require https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
-// @version     1.0
+// @require https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.js
+// @version     2.0
 // @author      Mario De Luca
 // @grant  GM_getValue
 // @grant  GM_addElement
@@ -65,8 +66,19 @@ function malScoreComponent(name, parent) {
     url: `https://myanimelist.net/search/prefix.json?type=all&keyword=${name}&v=1`,
     responseType: "json",
     onload: (obj) => {
-      const firstAnimeScore = obj.response.categories[0].items[0].payload.score
-      const firstAnimeUrl = obj.response.categories[0].items[0].url
+      const fuseOption = {
+        keys: [
+          "name",
+          "url"
+        ]
+      }
+
+      const fuse = new Fuse(obj.response.categories[0].items, fuseOption);
+      const rankedNames = fuse.search(name)
+      console.log(rankedNames)
+      
+      const firstAnimeScore = rankedNames[0].item.payload.score
+      const firstAnimeUrl = rankedNames[0].item.url
       malScoreText.innerText = " (" + firstAnimeScore + ")"
       malScoreText.href = firstAnimeUrl
       parent.appendChild(malScoreText)
@@ -84,7 +96,7 @@ let lastWatchedAnime = GM_getValue("last_anime", {})
 
 function renderWatchedSectionAndAnimeItem() {
 
-  if (currentUrl == "https://www.animeunity.to/" || currentUrl.includes("?page=")) {
+  if (currentUrl == "https://www.animeunity.so/" || currentUrl.includes("?page=")) {
 
     const animes = Array.from(document.querySelectorAll(".item"))
 
@@ -114,8 +126,8 @@ function renderWatchedSectionAndAnimeItem() {
           width: "20px",
           height: "20px"
         })
-
         el.appendChild(newText)
+
       }
     })
   }
