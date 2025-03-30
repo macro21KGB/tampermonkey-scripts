@@ -2,10 +2,11 @@
 // @name        Animeunity Utils
 // @namespace   Violentmonkey Scripts
 // @match       https://www.animeunity.so/*
+// @match       https://vixcloud.co/embed/*
 // @grant       none
 // @require https://cdn.jsdelivr.net/npm/@violentmonkey/dom@2
 // @require https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.js
-// @version     2.0
+// @version     1.0
 // @author      Mario De Luca
 // @grant  GM_getValue
 // @grant  GM_addElement
@@ -76,7 +77,7 @@ function malScoreComponent(name, parent) {
       const fuse = new Fuse(obj.response.categories[0].items, fuseOption);
       const rankedNames = fuse.search(name)
       console.log(rankedNames)
-      
+
       const firstAnimeScore = rankedNames[0].item.payload.score
       const firstAnimeUrl = rankedNames[0].item.url
       malScoreText.innerText = " (" + firstAnimeScore + ")"
@@ -144,8 +145,32 @@ function saveAnimeAndLastEpisodeWatched() {
 
 setTimeout(() => {
 
+  const buttonRow = document.querySelector(".jw-button-container")
+
+  if (buttonRow) {
+      const video = document.querySelector("video")
+      const newButton = document.createElement("button")
+      newButton.innerText = "skip"
+
+      appendStyles(newButton, {
+        backgroundColor: "transparent",
+        border: "none",
+        color: "white",
+      })
+
+      newButton.addEventListener("click", () => {
+        video.pause()
+        video.currentTime += 90
+        video.play()
+      })
+
+      buttonRow.appendChild(newButton)
+  }
+
+
   renderWatchedSectionAndAnimeItem();
   if (currentUrl.includes("/anime/")) {
+
 
     const malScoreParent = document.querySelector("#anime > div.content.container > div.sidebar > div.info-wrapper.pt-3.anime-info-wrapper > div:nth-child(8)")
     malScoreComponent(extractAnimeNameAndEpisode().title, malScoreParent)
